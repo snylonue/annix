@@ -62,3 +62,4 @@ flutter build apk --release --split-per-abi --split-debug-info debug --obfuscate
     - [ ] Delete credential
   - [x] Lyric
   - [x] Search
+
