@@ -41,5 +41,6 @@ jobs:
           path: |
             ./build/app/outputs/apk/**/*.apk
             ./build/app/outputs/bundle/**/*.aab
-            ./build/windows/
+            ./build/windows/runner/Release/
+            ./build/windows/runner/Debug/
             
