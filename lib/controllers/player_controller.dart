@@ -5,6 +5,7 @@ import 'package:annix/controllers/annil_controller.dart';
 import 'package:annix/models/metadata.dart';
 import 'package:annix/services/annil.dart';
 import 'package:annix/services/global.dart';
+import 'package:audio_session/audio_session.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:f_logs/f_logs.dart';
 import 'package:get/get.dart';
@@ -72,20 +73,30 @@ class PlayerController extends GetxController {
   }
 
   Future<void> play({bool reload = false}) async {
+    if (this.queue.isEmpty) return;
+
+    if (!await (await AudioSession.instance).setActive(true)) {
+      // request denied
+      return;
+    }
+
     if (reload) {
       if (this.playingIndex != null && this.playingIndex! < this.queue.length) {
         FLog.trace(text: "Start playing");
 
-        await this.stop();
-        final stopStatus = Completer();
-        late StreamSubscription<PlayerStatus> listener;
-        listener = playerStatus.listen((status) {
-          if (status == PlayerStatus.stopped && !stopStatus.isCompleted) {
-            stopStatus.complete();
-            listener.cancel();
-          }
-        });
-        await stopStatus.future;
+        // FIXME: stop playing before reload
+        // We did not stop here because the stop event would interrupt the `buffering` event.
+
+        // await this.stop();
+        // final stopStatus = Completer();
+        // late StreamSubscription<PlayerStatus> listener;
+        // listener = playerStatus.listen((status) {
+        //   if (status == PlayerStatus.stopped && !stopStatus.isCompleted) {
+        //     stopStatus.complete();
+        //     listener.cancel();
+        //   }
+        // });
+        // await stopStatus.future;
 
         final source = this.queue[this.playingIndex!];
         if (!source.preloaded) {
@@ -119,8 +130,11 @@ class PlayerController extends GetxController {
   }
 
   Future<void> stop() async {
-    await this.player.stop();
-    this.progress.value = Duration.zero;
+    if (this.playerStatus.value != PlayerStatus.stopped) {
+      await this.player.stop();
+      this.progress.value = Duration.zero;
+      await (await AudioSession.instance).setActive(false);
+    }
   }
 
   Future<void> previous() async {

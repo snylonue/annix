@@ -11,7 +11,10 @@ class FavoriteScreen extends PlaylistScreen {
   final AnnilController _annil = Get.find();
   final AnnivController _anniv = Get.find();
 
-  FavoriteScreen({Key? key}) : super(key: key);
+  final Widget? pageTitle = null;
+  final List<Widget>? pageActions = null;
+
+  RefreshCallback? get refresh => () => _anniv.syncFavorite();
 
   String get title => I18n.MY_FAVORITE.tr;
   Widget get cover => _anniv.favorites.keys.isNotEmpty
@@ -43,6 +46,9 @@ class FavoriteScreen extends PlaylistScreen {
                 favorite.artist,
                 overflow: TextOverflow.ellipsis,
               ),
+              onTap: () {
+                super.playFullList(initialIndex: index);
+              },
             );
           },
           separatorBuilder: (context, index) => Divider(height: 8),
@@ -51,5 +57,7 @@ class FavoriteScreen extends PlaylistScreen {
 
   List<TrackIdentifier> get tracks => _anniv.favorites.keys
       .map((t) => TrackIdentifier.fromSlashSplitedString(t))
+      .toList()
+      .reversed
       .toList();
 }

@@ -13,8 +13,11 @@ class AlbumDetailScreen extends PlaylistScreen {
 
   final Album album;
 
-  AlbumDetailScreen({required this.album, Key? key})
-      : super(key: key, pageTitle: Text(I18n.ALBUMS.tr));
+  Widget? get pageTitle => Text(I18n.ALBUMS.tr);
+  final List<Widget>? pageActions = null;
+  final RefreshCallback? refresh = null;
+
+  AlbumDetailScreen({required this.album});
 
   String get title => album.title;
   Widget get cover => _annil.cover(albumId: album.albumId);
@@ -75,6 +78,8 @@ class AlbumDetailScreen extends PlaylistScreen {
       needDiscId = true;
     }
 
+    var totalTrackId = 0;
+
     var discId = 1;
     album.discs.forEach((disc) {
       if (needDiscId) {
@@ -91,7 +96,9 @@ class AlbumDetailScreen extends PlaylistScreen {
           (track) {
             final trackIndex = trackId;
             trackId++;
-            // TODO: indicate playing track
+
+            final totalTrackIndex = totalTrackId;
+            totalTrackId++;
             return ListTile(
               leading: Text("$trackIndex"),
               minLeadingWidth: 16,
@@ -104,6 +111,10 @@ class AlbumDetailScreen extends PlaylistScreen {
                 discId: discId,
                 trackId: trackIndex,
               ),
+              onTap: () {
+                this.playFullList(initialIndex: totalTrackIndex);
+              },
+              // selected: TODO: indicate playing track,
             );
           },
         ),

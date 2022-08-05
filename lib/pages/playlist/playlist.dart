@@ -2,38 +2,35 @@ import 'package:annix/controllers/player_controller.dart';
 import 'package:annix/controllers/settings_controller.dart';
 import 'package:annix/models/anniv.dart';
 import 'package:annix/services/annil.dart';
-import 'package:annix/widgets/bottom_player.dart';
+import 'package:annix/services/global.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 abstract class PlaylistScreen extends StatelessWidget {
   /// Page title
-  final Widget? pageTitle;
+  abstract final Widget? pageTitle;
 
   /// Page actions
-  final List<Widget>? pageActions;
+  abstract final List<Widget>? pageActions;
 
   /// Cover image of the playlist.
-  Widget get cover;
+  abstract final Widget cover;
 
   /// Playlist name, will be displayed in intro part
-  String get title;
+  abstract final String title;
 
   /// Additional widgets after title of intro part
-  List<Widget> get intro => [];
+  abstract final List<Widget> intro;
 
   /// Widget to show track list
-  Widget get body;
+  abstract final Widget body;
 
   /// Tracks to play
-  List<TrackIdentifier> get tracks;
+  abstract final List<TrackIdentifier> tracks;
 
-  const PlaylistScreen({
-    Key? key,
-    this.pageTitle,
-    this.pageActions,
-  }) : super(key: key);
+  /// Refresh callback
+  abstract final RefreshCallback? refresh;
 
   Widget _albumIntro(BuildContext context) {
     return Container(
@@ -85,20 +82,35 @@ abstract class PlaylistScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final SettingsController settings = Get.find();
 
+    final actions = pageActions ?? [];
+    var child = body;
+    if (this.refresh != null) {
+      if (Global.isDesktop) {
+        // sync button on desktop
+        actions.add(
+          IconButton(
+            icon: Icon(Icons.sync),
+            onPressed: this.refresh,
+          ),
+        );
+      } else {
+        // refresh indicator on mobile
+        child = RefreshIndicator(
+          onRefresh: this.refresh!,
+          child: child,
+        );
+      }
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: pageTitle,
-        actions: pageActions,
+        actions: actions,
       ),
       body: Column(
         children: [
           _albumIntro(context),
-          Expanded(child: body),
-          // bottom player
-          GetBuilder<PlayerController>(
-            builder: (player) =>
-                player.playing != null ? BottomPlayer() : Container(),
-          )
+          Expanded(child: child),
         ],
       ),
       floatingActionButton: GestureDetector(
@@ -112,14 +124,22 @@ abstract class PlaylistScreen extends StatelessWidget {
                   ? Icons.shuffle
                   : Icons.play_arrow,
             ),
-            onPressed: () => _playFullList(settings.shufflePlayButton.value),
+            onPressed: () =>
+                playFullList(shuffle: settings.shufflePlayButton.value),
           );
         }),
       ),
     );
   }
 
-  void _playFullList(bool shuffle) async {
+  void playFullList({bool shuffle = false, int initialIndex = 0}) async {
+    assert(
+      // when shuffle is on, initialIndex can only be zero
+      (shuffle && initialIndex == 0) ||
+          // or disable shuffle
+          !shuffle,
+    );
+
     final trackList = tracks;
     if (shuffle) {
       trackList.shuffle();
@@ -134,6 +154,7 @@ abstract class PlaylistScreen extends StatelessWidget {
           trackId: s.trackId,
         ),
       )),
+      initialIndex: initialIndex,
     );
   }
 }
