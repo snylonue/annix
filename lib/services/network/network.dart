@@ -17,37 +17,8 @@ class NetworkService extends ChangeNotifier {
   }
 
   void _updateState(ConnectivityResult result) {
-    switch (result) {
-      // wireless or wired
-      case ConnectivityResult.wifi:
-      case ConnectivityResult.ethernet:
-        isConnected = true;
-        isMobile = false;
-        break;
-      // mobile network, need to save traffic
-      case ConnectivityResult.mobile:
-      case ConnectivityResult.bluetooth:
-        isConnected = true;
-        isMobile = true;
-        break;
-      default:
-        // no network
-        isConnected = false;
-        isMobile = false;
-
-        if (Global.isApple) {
-          // on apple devices, VPN connection may result in ConnectivityResult.none
-          // so add an polyfill to check internet accessibility
-          // https://github.com/fluttercommunity/plus_plugins/issues/857
-          _canVisitInternet().then((value) {
-            if (value) {
-              isConnected = value;
-              notifyListeners();
-            }
-          });
-        }
-        break;
-    }
+    isConnected = true;
+    isMobile = false;
     notifyListeners();
   }
 
