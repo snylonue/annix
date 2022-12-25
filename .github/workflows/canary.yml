@@ -107,7 +107,7 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: master
-          cache: true
+          cache: false
           cache-key: ${{ secrets.FLUTTER_CACHE_KEY }}
       - name: Setup | Dependencies
         run: |
