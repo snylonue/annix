@@ -139,13 +139,13 @@ class AnnilAudioSource extends Source {
         ref.read(downloadManagerProvider).add(task);
         _downloadTask = task;
         _downloadTask?.addListener(_onDownloadProgress);
-        final response = await task.start();
+        await task.start();
 
-        final duration = int.parse(response.headers['x-duration-seconds']![0]);
+        // final duration = int.parse(response.headers['x-duration-seconds']![0]);
         // +1 to avoid duration exceeding
-        PlaybackService.durationMap.update((final map) {
-          map[id] = Duration(seconds: duration + 1);
-        });
+        // PlaybackService.durationMap.update((final map) {
+          // map[id] = Duration(seconds: duration + 1);
+        // });
       } else {
         throw UnsupportedError('No available annil server found');
       }
