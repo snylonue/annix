@@ -25,6 +25,8 @@ class AnnilService extends ChangeNotifier {
   List<String> albums = [];
 
   AnnilService(this.ref) {
+    client.options.followRedirects = false;
+
     client.httpClientAdapter = IOHttpClientAdapter(
         onHttpClientCreate: (final client) {
           final skip = ref.read(settingsProvider).skipCertificateVerification;
