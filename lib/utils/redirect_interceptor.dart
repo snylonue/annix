@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:f_logs/f_logs.dart';
 
 // Writes headers of a redirect to subsquent responses.
 class RedirectInterceptor extends Interceptor {
@@ -9,7 +10,7 @@ class RedirectInterceptor extends Interceptor {
     final Response response,
     final ResponseInterceptorHandler handler,
   ) {
-    print(response);
+    FLog.error(text: '$response');
     if (headers == null &&
         response.statusCode! >= 300 &&
         response.statusCode! < 400) {
