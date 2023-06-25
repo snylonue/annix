@@ -9,16 +9,13 @@ class RedirectInterceptor extends Interceptor {
     final Response response,
     final ResponseInterceptorHandler handler,
   ) {
+    print(response);
     if (headers == null &&
         response.statusCode! >= 300 &&
         response.statusCode! < 400) {
       headers = response.headers;
-    } else if (headers != null &&
-        response.statusCode! >= 200 &&
-        response.statusCode! < 300) {
+    } else if (headers != null) {
       response.headers = headers!;
-      headers = null;
-    } else {
       headers = null;
     }
 
