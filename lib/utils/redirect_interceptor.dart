@@ -10,10 +10,10 @@ class RedirectInterceptor extends Interceptor {
     final Response response,
     final ResponseInterceptorHandler handler,
   ) {
-    FLog.error(text: '$response');
+    FLog.error(text: response.toString());
+    FLog.error(text: response.headers.toString());
     if (headers == null &&
-        response.statusCode! >= 300 &&
-        response.statusCode! < 400) {
+        response.isRedirect) {
       headers = response.headers;
     } else if (headers != null) {
       response.headers = headers!;
