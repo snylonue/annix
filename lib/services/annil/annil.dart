@@ -34,6 +34,8 @@ class AnnilService extends ChangeNotifier {
         },
         validateCertificate: (final cert, final host, final port) => true);
 
+    client.interceptors.add(RedirectInterceptor());
+
     client.interceptors.add(RetryInterceptor(
       dio: client,
       logPrint: (final text) => FLog.error(text: text),
@@ -44,8 +46,6 @@ class AnnilService extends ChangeNotifier {
         Duration(seconds: 3),
       ],
     ));
-
-    client.interceptors.add(RedirectInterceptor());
 
     final db = ref.read(localDatabaseProvider);
     db.localAnnilCaches.select().get().then((final value) {
