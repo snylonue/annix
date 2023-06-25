@@ -17,7 +17,7 @@ class RedirectInterceptor extends Interceptor {
       headers = response.headers;
     } else if (headers != null) {
       response.headers = headers!;
-      headers = null;
+      // headers = null;
     }
 
     handler.next(response);
