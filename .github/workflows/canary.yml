@@ -24,7 +24,7 @@ jobs:
           flutter pub get
       - name: Build | iOS
         run: |
-          flutter build ipa --verbose --build-number ${{ github.run_number }} --export-options-plist=$PWD/ios/exportOptions.plist
+          flutter build ipa --verbose --build-number ${{ github.run_number }}
       - name: Deploy | Upload artifacts
         uses: actions/upload-artifact@v3
         with:
