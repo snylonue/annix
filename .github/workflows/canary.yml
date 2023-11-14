@@ -165,19 +165,6 @@ jobs:
           channel: stable
           cache: true
           cache-key: ${{ secrets.FLUTTER_CACHE_KEY }}
-      - name: Setup | Certificates
-        uses: apple-actions/import-codesign-certs@v1
-        with:
-          keychain: ${{ env.KEYCHAIN }}
-          p12-file-base64: ${{ secrets.IOS_CERTIFICATES_P12 }}
-          p12-password: ${{ secrets.IOS_CERTIFICATES_P12_PASSWORD }}
-      - name: Setup | Provisioning Profiles
-        uses: apple-actions/download-provisioning-profiles@v1
-        with:
-          bundle-id: ${{ env.BUNDLE_ID }}
-          issuer-id: ${{ secrets.IOS_APPSTORE_CONNECT_API_ISSUER }}
-          api-key-id: ${{ secrets.IOS_APPSTORE_CONNECT_API_KEY_ID }}
-          api-private-key: ${{ secrets.IOS_APPSTORE_CONNECT_API_KEY_DATA }}
       - name: Setup | Dependencies
         run: |
           rustup target add x86_64-apple-darwin aarch64-apple-darwin
