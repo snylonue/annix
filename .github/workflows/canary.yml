@@ -150,10 +150,54 @@ jobs:
           path: |
             ./annix-win64.zip
           retention-days: 1
+  iOS:
+    runs-on: macos-latest
+    env:
+      KEYCHAIN: job-${{ github.job }}-${{ github.run_id	}}-${{ github.run_number }}-${{ github.run_attempt }}
+    steps:
+      - name: Setup | Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Setup | Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+          cache-key: ${{ secrets.FLUTTER_CACHE_KEY }}
+      - name: Setup | Certificates
+        uses: apple-actions/import-codesign-certs@v1
+        with:
+          keychain: ${{ env.KEYCHAIN }}
+          p12-file-base64: ${{ secrets.IOS_CERTIFICATES_P12 }}
+          p12-password: ${{ secrets.IOS_CERTIFICATES_P12_PASSWORD }}
+      - name: Setup | Provisioning Profiles
+        uses: apple-actions/download-provisioning-profiles@v1
+        with:
+          bundle-id: ${{ env.BUNDLE_ID }}
+          issuer-id: ${{ secrets.IOS_APPSTORE_CONNECT_API_ISSUER }}
+          api-key-id: ${{ secrets.IOS_APPSTORE_CONNECT_API_KEY_ID }}
+          api-private-key: ${{ secrets.IOS_APPSTORE_CONNECT_API_KEY_DATA }}
+      - name: Setup | Dependencies
+        run: |
+          rustup target add x86_64-apple-darwin aarch64-apple-darwin
+          rustup update
+          flutter pub get
+      - name: Build | iOS
+        run: |
+          flutter build ios --release --verbose --build-number ${{ github.run_number }} --no-codesign
+          xcodebuild -workspace $PWD/ios/Runner.xcworkspace -scheme Runner -sdk iphoneos -configuration Release archive -archivePath $PWD/build/ios/iphoneos/Runner.xcarchive CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED="NO"
+          xcodebuild -exportArchive -archivePath $PWD/build/ios/iphoneos/Runner.xcarchive -exportOptionsPlist $PWD/ios/exportOptions.plist -exportPath $PWD/build/ios/iphoneos/Runner.ipa CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED="NO"
+      - name: Deploy | Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: annix-ios
+          path: ./build/ios/iphoneos/Runner.ipa/*.ipa
+          retention-days: 1
 
   publish:
     if: ${{ github.ref == 'refs/heads/master' }}
-    needs: [ android, linux, macOS, windows ]
+    needs: [ android, linux, macOS, windows, iOS ]
     runs-on: ubuntu-20.04
     env:
       GH_REPO: ${{ github.repository }}
