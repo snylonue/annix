@@ -174,7 +174,7 @@ jobs:
         run: |
           flutter build ios --release --verbose --build-number ${{ github.run_number }} --no-codesign
           xcodebuild -workspace $PWD/ios/Runner.xcworkspace -scheme Runner -sdk iphoneos -configuration Release archive -archivePath $PWD/build/ios/iphoneos/Runner.xcarchive CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED="NO"
-          xcodebuild -exportArchive -archivePath $PWD/build/ios/iphoneos/Runner.xcarchive -exportPath $PWD/build/ios/iphoneos/Runner.ipa CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED="NO"
+          xcodebuild -exportArchive -archivePath $PWD/build/ios/iphoneos/Runner.xcarchive -exportOptionsPlist $PWD/ios/exportOptions.plist -exportPath $PWD/build/ios/iphoneos/Runner.ipa CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED="NO"
       - name: Deploy | Upload artifacts
         uses: actions/upload-artifact@v3
         with:
