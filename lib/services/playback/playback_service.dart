@@ -229,19 +229,9 @@ class PlaybackService extends ChangeNotifier {
 
   Future<void> pause() async {
     FLog.trace(text: 'Pause playing');
-    // deactivate audio session
-    try {
-      if (!await AudioSession.instance.then((final e) => e.setActive(false))) {
-      // request denied
-      return;
-    }
-    } on PlatformException catch (e) {
-      FLog.error(text: 'Error: $e');
-      if (e.code != '560030580') {
-        rethrow;
-      }
-    }
     await PlaybackService.player.pause();
+    // deactivate audio session
+    await AudioSession.instance.then((final e) => e.setActive(false));
   }
 
   Future<void> playOrPause() async {
