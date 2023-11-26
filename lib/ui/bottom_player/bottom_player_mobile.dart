@@ -14,7 +14,8 @@ class MobileBottomPlayer extends StatelessWidget {
 
   @override
   Widget build(final BuildContext context) {
-    return Container(
+    return SafeArea(
+        child: Container(
       clipBehavior: Clip.hardEdge,
       decoration: BoxDecoration(
         borderRadius: const BorderRadius.only(
@@ -104,6 +105,6 @@ class MobileBottomPlayer extends StatelessWidget {
           ),
         ],
       ),
-    );
+    ));
   }
 }
