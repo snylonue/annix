@@ -70,7 +70,7 @@ class AnnixLayoutMobile extends ConsumerWidget {
                   router.slideController.show();
                 }
               },
-              child: const MobileBottomPlayer(),
+              child: const SafeArea(child: MobileBottomPlayer()),
             ),
             panel: ValueListenableBuilder(
               valueListenable: ref.read(settingsProvider).blurPlayingPage,
