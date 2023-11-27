@@ -31,11 +31,12 @@ class _PlayingScreenMobileState extends State<PlayingScreenMobile> {
   @override
   Widget build(final BuildContext context) {
     return Scaffold(
-      body: Container(
+      body: SafeArea(
+          child: Container(
         color: context.colorScheme.secondaryContainer,
         padding: const EdgeInsets.symmetric(horizontal: 24),
         child: _mainPlayingWidget(),
-      ),
+      )),
     );
   }
 }
