@@ -302,7 +302,6 @@ class SettingsScreen extends ConsumerWidget {
                   description: Text(p ?? 'None'),
                   onPressed: (final context) async {
                     final result = await FilePicker.platform.pickFiles(
-                      allowedExtensions: ['db'],
                       type: FileType.custom,
                     );
 
