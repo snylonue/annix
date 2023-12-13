@@ -289,8 +289,32 @@ class SettingsScreen extends ConsumerWidget {
                       .then((final _) => navigator.pop());
                 },
               ),
+              
             ],
           ),
+          SettingsSection(title: const Text('Metadata'), tiles: [
+            SettingsTileBuilder<String?>(
+                value: settings.dbPath,
+                builder: (final context, final p, final _) =>
+                    SettingsTile.navigation(
+                  leading: const Icon(Icons.font_download),
+                  title: const Text('Additional metadata'),
+                  description: Text(p ?? 'None'),
+                  onPressed: (final context) async {
+                    final result = await FilePicker.platform.pickFiles(
+                      allowedExtensions: ['db'],
+                      type: FileType.custom,
+                    );
+
+                    if (result != null) {
+                      settings.dbPath.value = result.files.single.path;
+                    } else {
+                      settings.dbPath.value = null;
+                    }
+                  },
+                ),
+              ),
+          ])
         ],
       ),
     );

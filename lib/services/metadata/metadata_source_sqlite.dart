@@ -73,3 +73,78 @@ class SqliteMetadataSource extends MetadataSource {
     return RepoDatabaseDescription.fromJson(jsonDecode(data));
   }
 }
+
+class SingleSqliteMetadataSource extends MetadataSource {
+  String dbPath;
+  late LocalDb database;
+
+  SingleSqliteMetadataSource(this.dbPath);
+
+  @override
+  Future<void> prepare() async {
+    database =
+        await api.newStaticMethodLocalDb(path: dbPath);
+  }
+
+  @override
+  Future<bool> canUpdate() async {
+    return false;
+  }
+
+  Future<Album?> _getAlbum(final String albumId) async {
+    final album = await database.getAlbum(albumId: UuidValue(albumId));
+    if (album == null) {
+      return null;
+    } else {
+      return Album.fromJson(jsonDecode(album));
+    }
+  }
+
+  @override
+  Future<Map<String, Album>> getAlbums(final List<String> albums) async {
+    return Map.fromEntries(
+        (await Future.wait(albums.map((final albumId) => _getAlbum(albumId))))
+            .where((final e) => e != null)
+            .map((final e) => MapEntry(e!.albumId, e)));
+  }
+
+  @override
+  Future<Set<String>> getAlbumsByTag(final String tag) async {
+    final albums = await database.getAlbumsByTag(tag: tag, recursive: false);
+    return albums.map((final e) => e.toString()).toSet();
+  }
+
+  @override
+  Future<Map<String, TagEntry>> getTags() async {
+    final tags = await database.getTags();
+    return Map.fromEntries(
+      tags.map((final t) {
+        final pos = t.name.indexOf(':');
+        final type = t.name.substring(0, pos);
+        final name = t.name.substring(pos + 1);
+        return MapEntry(
+          t.name,
+          TagEntry(
+            name: name,
+            type: TagType.fromString(type),
+            children: t.children,
+          ),
+        );
+      }),
+    );
+  }
+
+  Future<RepoDatabaseDescription> getDescription() async {
+    return RepoDatabaseDescription(lastModified: 0);
+  }
+}
+
+// class ExtraSource extends MetadataSource {
+//   SingleSqliteMetadataSource? db;
+
+//   ExtraSource(Ref ref) {
+//     final settings = ref.read(preferencesProvider);
+
+//     if (pref)
+//   }
+// }

@@ -1,6 +1,7 @@
 import 'package:annix/providers.dart';
 import 'package:annix/services/annil/annil.dart';
 import 'package:annix/services/font.dart';
+import 'package:annix/services/metadata/metadata_source_sqlite.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -77,6 +78,19 @@ class SettingsService {
         ValueNotifier(preferences.getBool('annix_experimental_opus') ?? false);
     experimentalOpus.addListener(
         saveChangedVariable('annix_experimental_opus', experimentalOpus));
+
+    dbPath = ValueNotifier(preferences.getString('annix_db_path'));
+    dbPath.addListener(() async {
+      await saveChangedVariable('annix_db_path', dbPath)();
+      final metadata = ref.read(metadataProvider);
+      if (dbPath.value != null) {
+        metadata.sources.removeWhere((element) => element is SingleSqliteMetadataSource);
+        final db = SingleSqliteMetadataSource(dbPath.value!);
+        await db.prepare();
+        metadata.sources.insert(0, db);
+      }
+    });
+    dbPath.notifyListeners();
   }
 
   /// Download audio files using mobile network
@@ -120,6 +134,8 @@ class SettingsService {
   late ValueNotifier<SearchTrackDisplayType> searchTrackDisplayType;
 
   late ValueNotifier<bool> experimentalOpus;
+
+  late ValueNotifier<String?> dbPath;
 
   Future<void> Function() saveChangedVariable<T>(
     final String key,
