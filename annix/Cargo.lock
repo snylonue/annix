@@ -122,7 +122,7 @@ dependencies = [
 [[package]]
 name = "anni-playback"
 version = "0.1.0"
-source = "git+https://github.com/ProjectAnni/anni#bad3d402a0a8a62801106119eba4c67db163177e"
+source = "git+https://github.com/snylonue/anni?branch=update-playback#0507c812c7101a4d37c9dd70839b79f3566cb8ad"
 dependencies = [
  "anyhow",
  "arrayvec",
