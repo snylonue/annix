@@ -23,3 +23,6 @@ rand = "0.8.5"
 
 [build-dependencies]
 flutter_rust_bridge_codegen = { version = "=1.81", features = ["uuid"] }
+
+[patch.crates-io]
+cpal = { git = "https://github.com/sidit77/cpal.git", branch = "master" }
