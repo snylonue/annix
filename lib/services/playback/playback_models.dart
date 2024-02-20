@@ -1,4 +1,4 @@
-import 'package:annix/bridge/native.dart';
+import 'package:annix/src/rust/player.dart';
 import 'package:annix/services/lyric/lyric_source.dart';
 import 'package:annix/services/metadata/metadata_model.dart';
 

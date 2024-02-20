@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:annix/bridge/native.dart';
+import 'package:annix/src/rust/api/simple.dart';
 import 'package:annix/services/metadata/metadata_model.dart';
 import 'package:annix/services/anniv/anniv_model.dart';
 import 'package:annix/services/metadata/metadata_source.dart';
@@ -17,7 +17,7 @@ class SqliteMetadataSource extends MetadataSource {
   @override
   Future<void> prepare() async {
     database =
-        await api.newStaticMethodLocalDb(path: p.join(dbFolderPath, 'repo.db'));
+        await LocalDb.newLocalDb(path: p.join(dbFolderPath, 'repo.db'));
   }
 
   @override

@@ -1,6 +1,7 @@
 import 'dart:io';
 
-import 'package:annix/bridge/native.dart';
+import 'package:annix/src/rust/api/simple.dart';
+// import 'package:annix/src/rust/frb_generated.dart';
 import 'package:annix/providers.dart';
 import 'package:annix/services/anniv/anniv_model.dart';
 import 'package:annix/services/annil/cache.dart';

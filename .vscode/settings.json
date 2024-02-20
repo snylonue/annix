@@ -1,5 +1,5 @@
 {
     "rust-analyzer.linkedProjects": [
-        "./annix/Cargo.toml"
+        "./annix/Cargo.toml",
     ]
 }

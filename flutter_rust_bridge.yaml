@@ -1,0 +1,5 @@
+rust_input: annix/src/api/**/*.rs
+dart_output: lib/src/rust
+
+skip_add_mod_to_lib: true
+wasm: false

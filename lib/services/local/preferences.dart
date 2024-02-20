@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:annix/bridge/native.dart';
+import 'package:annix/src/rust/api/simple.dart';
 import 'package:annix/services/path.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -8,7 +8,7 @@ class PreferencesStore {
   late final NativePreferenceStore _store;
 
   PreferencesStore(final Ref ref)
-      : _store = api.newStaticMethodNativePreferenceStore(
+      : _store = NativePreferenceStore.newNativePreferenceStore(
             root: PathService.dataRoot);
 
   T? get<T>(final String key) {

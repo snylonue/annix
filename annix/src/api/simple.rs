@@ -1,5 +1,7 @@
 pub use anni_repo::{db::RepoDatabaseRead, prelude::JsonAlbum};
-pub use flutter_rust_bridge::{RustOpaque, SyncReturn};
+// pub use flutter_rust_bridge::{RustOpaque, SyncReturn};
+pub use crate::frb_generated::RustOpaque;
+use flutter_rust_bridge::frb;
 pub use once_cell::sync::Lazy;
 pub use rusqlite::Connection;
 pub use uuid::Uuid;
@@ -36,11 +38,12 @@ pub fn update_network_status(is_online: bool) {
 
 /// Preferences
 pub struct NativePreferenceStore {
-    pub conn: RustOpaque<Mutex<Connection>>,
+    pub conn: Mutex<Connection>,
 }
 
 impl NativePreferenceStore {
-    pub fn new(root: String) -> SyncReturn<NativePreferenceStore> {
+    #[frb(sync)]
+    pub fn new(root: String) -> NativePreferenceStore {
         let db_path = PathBuf::from(&root).join("preference.db");
         std::fs::create_dir_all(&root).unwrap();
         let conn = Connection::open(db_path).unwrap();
@@ -55,11 +58,12 @@ CREATE TABLE IF NOT EXISTS preferences(
         )
         .unwrap();
 
-        let conn = RustOpaque::new(Mutex::new(conn));
-        SyncReturn(Self { conn })
+        let conn = Mutex::new(conn);
+        Self { conn }
     }
 
-    pub fn get(&self, key: String) -> SyncReturn<Option<String>> {
+    #[frb(sync)]
+    pub fn get(&self, key: String) -> Option<String> {
         let conn = self.conn.lock().unwrap();
         let mut stmt = conn
             .prepare("SELECT value FROM preferences WHERE key = ?")
@@ -71,10 +75,11 @@ CREATE TABLE IF NOT EXISTS preferences(
             .and_then(|r| r)
             .and_then(|row| row.get(0).ok());
 
-        SyncReturn(result)
+        result
     }
 
-    pub fn set(&self, key: String, value: String) -> SyncReturn<()> {
+    #[frb(sync)]
+    pub fn set(&self, key: String, value: String) {
         self.conn
             .lock()
             .unwrap()
@@ -83,11 +88,10 @@ CREATE TABLE IF NOT EXISTS preferences(
                 rusqlite::params![key, value],
             )
             .unwrap();
-
-        SyncReturn(())
     }
 
-    pub fn remove(&self, key: String) -> SyncReturn<()> {
+    #[frb(sync)]
+    pub fn remove(&self, key: String) {
         self.conn
             .lock()
             .unwrap()
@@ -96,11 +100,10 @@ CREATE TABLE IF NOT EXISTS preferences(
                 rusqlite::params![key],
             )
             .unwrap();
-
-        SyncReturn(())
     }
 
-    pub fn remove_prefix(&self, prefix: String) -> SyncReturn<()> {
+    #[frb(sync)]
+    pub fn remove_prefix(&self, prefix: String) {
         self.conn
             .lock()
             .unwrap()
@@ -109,8 +112,6 @@ CREATE TABLE IF NOT EXISTS preferences(
                 rusqlite::params![format!("{}%", prefix)],
             )
             .unwrap();
-
-        SyncReturn(())
     }
 }
 
@@ -171,7 +172,8 @@ pub struct LocalStore {
 }
 
 impl LocalStore {
-    pub fn new(root: String) -> SyncReturn<LocalStore> {
+    #[frb(sync)]
+    pub fn new(root: String) -> LocalStore {
         let db_path = PathBuf::from(root).join("cache.db");
         let conn = Connection::open(db_path).unwrap();
         conn.execute(
@@ -188,7 +190,7 @@ CREATE TABLE IF NOT EXISTS store(
         .unwrap();
 
         let conn = RustOpaque::new(Mutex::new(conn));
-        SyncReturn(Self { conn })
+        Self { conn }
     }
 
     pub fn insert(&self, category: String, key: String, value: String) {
@@ -228,8 +230,7 @@ CREATE TABLE IF NOT EXISTS store(
 
 // Audio
 pub use anni_playback::types::*;
-use flutter_rust_bridge::frb;
-use flutter_rust_bridge::StreamSink;
+use crate::frb_generated::StreamSink;
 
 pub use crate::player::player::Player;
 pub use crate::player::PlayerStateEvent;
@@ -268,7 +269,8 @@ pub struct AnnixPlayer {
 }
 
 impl AnnixPlayer {
-    pub fn new() -> SyncReturn<AnnixPlayer> {
+    #[frb(sync)]
+    pub fn new() -> AnnixPlayer {
         let (player, receiver) = Player::new();
         let progress = Arc::new(OnceLock::new());
         let player_state = Arc::new(OnceLock::new());
@@ -297,11 +299,11 @@ impl AnnixPlayer {
             }
         });
 
-        SyncReturn(Self {
+        Self {
             player: RustOpaque::new(player),
             _state: RustOpaque::new(player_state),
             _progress: RustOpaque::new(progress),
-        })
+        }
     }
 
     pub fn play(&self) {
@@ -328,8 +330,9 @@ impl AnnixPlayer {
         self.player.seek(position);
     }
 
-    pub fn is_playing(&self) -> SyncReturn<bool> {
-        SyncReturn(self.player.is_playing())
+    #[frb(sync)]
+    pub fn is_playing(&self) -> bool {
+        self.player.is_playing()
     }
 
     pub fn player_state_stream(&self, stream: StreamSink<PlayerStateEvent>) {
@@ -347,4 +350,16 @@ impl AnnixPlayer {
             .write()
             .unwrap() = Some(stream);
     }
+}
+
+
+#[flutter_rust_bridge::frb(sync)] // Synchronous mode for simplicity of the demo
+pub fn greet(name: String) -> String {
+    format!("Hello, {name}!")
+}
+
+#[flutter_rust_bridge::frb(init)]
+pub fn init_app() {
+    // Default utilities - feel free to customize
+    flutter_rust_bridge::setup_default_user_utils();
 }

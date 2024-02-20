@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:annix/bridge/native.dart';
+import 'package:annix/src/rust/api/simple.dart';
 import 'package:annix/services/path.dart';
 
 class AnnixStore {
@@ -13,7 +13,7 @@ class AnnixStore {
   final LocalStore _database;
 
   AnnixStore._()
-      : _database = api.newStaticMethodLocalStore(root: PathService.dataRoot);
+      : _database = LocalStore.newLocalStore(root: PathService.dataRoot);
 
   AnnixStoreCategory category(final String category) {
     return AnnixStoreCategory(this, category);

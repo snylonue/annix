@@ -1,7 +1,8 @@
 import 'dart:convert';
 import 'dart:math';
 
-import 'package:annix/bridge/native.dart';
+import 'package:annix/src/rust/api/simple.dart';
+import 'package:annix/src/rust/player.dart';
 import 'package:annix/providers.dart';
 import 'package:annix/services/annil/audio_source.dart';
 import 'package:annix/services/annil/annil.dart';
@@ -41,7 +42,7 @@ void playFullList({
 }
 
 class PlaybackService extends ChangeNotifier {
-  static final AnnixPlayer player = api.newStaticMethodAnnixPlayer();
+  static final AnnixPlayer player = AnnixPlayer.newAnnixPlayer();
 
   // TODO: cache this map
   static final PropertyValueNotifier<Map<String, Duration>> durationMap =
