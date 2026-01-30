@@ -10,6 +10,7 @@ import 'package:annix/services/metadata/metadata_source_anniv.dart';
 import 'package:annix/services/metadata/metadata_source_anniv_sqlite.dart';
 import 'package:annix/services/anniv/anniv_model.dart';
 import 'package:annix/services/anniv/anniv_client.dart';
+import 'package:annix/services/metadata/metadata_source_remote_sqlite.dart';
 import 'package:annix/services/path.dart';
 import 'package:dio/dio.dart';
 import 'package:drift/drift.dart';
@@ -548,5 +549,16 @@ class AnnivService extends ChangeNotifier {
       await annim.prepare();
       metadata.sources.insert(0, annim);
     } catch (_) {}
+
+    final metadataUrl = ref.read(settingsProvider).metadataRepoUrl.value;
+    if (metadataUrl != null) {
+      try {
+        final remote = RemoteSqliteMetadataSource(ref, metadataUrl);
+        await remote.prepare();
+        metadata.sources.insert(0, remote);
+      } catch (e) {
+        print(e);
+      }
+    }
   }
 }

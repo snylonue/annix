@@ -168,6 +168,39 @@ class SettingsScreen extends ConsumerWidget {
               ),
             ],
           ),
+          SettingsSection(title: const Text('Metadata'), tiles: [
+            SettingsTileBuilder<String?>(
+                value: settings.metadataRepoUrl,
+                builder: (final context, final p, final _) =>
+                    SettingsTile.navigation(
+                      title: const Text('MetaData Repo'),
+                      onPressed: (final context) {
+                        showDialog(
+                            context: context,
+                            builder: (context) {
+                              final controller = TextEditingController(
+                                  text: settings.metadataRepoUrl.value);
+                              return AlertDialog(
+                                content: TextField(controller: controller),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    child: Text('cancel'),
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      settings.metadataRepoUrl.value =
+                                          controller.text;
+                                      Navigator.pop(context);
+                                    },
+                                    child: Text('ok'),
+                                  ),
+                                ],
+                              );
+                            });
+                      },
+                    ))
+          ]),
           SettingsSection(
             title: const Text('Advanced'),
             tiles: <SettingsTile>[

@@ -60,6 +60,9 @@ class SettingsService {
         ValueNotifier(preferences.getBool('annix_experimental_opus') ?? true);
     experimentalOpus.addListener(
         saveChangedVariable('annix_experimental_opus', experimentalOpus));
+
+    metadataRepoUrl = ValueNotifier(preferences.getString('annix_metadata_repo_url'));
+    metadataRepoUrl.addListener(saveChangedVariable('annix_metadata_repo_url', metadataRepoUrl));
   }
 
   /// Download audio files using mobile network
@@ -93,6 +96,8 @@ class SettingsService {
   late ValueNotifier<SearchTrackDisplayType> searchTrackDisplayType;
 
   late ValueNotifier<bool> experimentalOpus;
+
+  late ValueNotifier<String?> metadataRepoUrl;
 
   Future<void> Function() saveChangedVariable<T>(
     final String key,
