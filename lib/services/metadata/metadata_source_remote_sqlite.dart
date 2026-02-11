@@ -1,7 +1,7 @@
 import 'dart:io';
 
-import 'package:annix/providers.dart';
 import 'package:annix/services/anniv/anniv_model.dart';
+import 'package:annix/services/logger.dart';
 import 'package:annix/services/metadata/metadata_source_sqlite.dart';
 import 'package:annix/services/path.dart';
 import 'package:dio/dio.dart';
@@ -32,14 +32,14 @@ class RemoteSqliteMetadataSource extends SqliteMetadataSource {
   @override
   Future<bool> canUpdate() async {
     try {
-      final repoDescription =
-          (await client.get<RepoDatabaseDescription>(p.join(url, 'repo.json')))
-              .data;
-      final remoteLastModified = repoDescription!.lastModified;
+      final repoDescription = RepoDatabaseDescription.fromJson(
+          (await client.get(p.join(url, 'repo.json'))).data);
+      final remoteLastModified = repoDescription.lastModified;
       final localRepoDescription = await getDescription();
       final localLastModified = localRepoDescription.lastModified;
       return remoteLastModified > localLastModified;
     } catch (e) {
+      Logger.error('fail to check for update', exception: e);
       return false;
     }
   }

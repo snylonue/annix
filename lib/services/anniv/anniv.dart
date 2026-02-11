@@ -557,8 +557,10 @@ class AnnivService extends ChangeNotifier {
         await remote.prepare();
         metadata.sources.insert(0, remote);
       } catch (e) {
-        print(e);
+        Logger.error('fail to load remote metadata', exception: e);
       }
     }
+
+    await metadata.update();
   }
 }

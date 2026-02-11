@@ -15,12 +15,13 @@ class MetadataService {
   ///
   /// This function returns whether an update is done actually.
   Future<bool> update() async {
-    for (final source in sources) {
+    return (await Future.wait(sources.map((final source) async {
       if (await source.canUpdate()) {
         return await source.doUpdate();
+      } else {
+        return false;
       }
-    }
-    return false;
+    }))).any((e) => e);
   }
 
   Set<String> _getAlbumDebounceList = {};
